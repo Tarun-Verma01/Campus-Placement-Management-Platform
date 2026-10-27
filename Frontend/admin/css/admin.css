@@ -1,0 +1,168 @@
+/* admin/css/admin.css
+   Styles for the admin portal.
+   Same visual language (colours, sidebar, cards) as student/css/student.css
+   so both portals look like one product.
+*/
+:root{
+  --bg:#fbfdff;
+  --surface:#ffffff;
+  --muted:#6b7280;
+  --border:#e6eef8;
+  --blue:#2563eb;
+  --blue-600:#1d4ed8;
+  --radius:12px;
+  --danger:#dc2626;
+  --ok:#059669;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;color:#0f172a;background:var(--bg);}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+
+/* ---------- Layout: sidebar + main ---------- */
+.app{display:flex;min-height:100vh}
+.sidebar{
+  width:220px;height:100vh;position:sticky;top:0;align-self:flex-start;
+  padding:20px;border-right:1px solid var(--border);
+  background:linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+  display:flex;flex-direction:column;
+}
+.brand{font-weight:700;color:#0b1220;text-decoration:none;font-size:1.1rem}
+.role-tag{
+  display:inline-block;margin-top:8px;padding:2px 8px;border-radius:999px;
+  background:rgba(37,99,235,0.08);color:var(--blue-600);
+  font-size:0.9rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+}
+.nav{margin-top:18px;flex:1}
+.nav a{display:block;padding:10px 12px;color:var(--muted);text-decoration:none;border-radius:8px;margin-bottom:6px;transition:background 0.2s ease, color 0.2s ease}
+.nav a.active, .nav a:hover{background:rgba(37,99,235,0.06);color:var(--blue-600)}
+
+#logoutBtn{margin-top:auto;padding-top:16px;border-top:1px solid var(--border)}
+#logoutBtn .btn-outline{
+  display:block;width:100%;padding:10px 14px;font-size:0.9rem;font-weight:600;
+  text-align:center;border-radius:8px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);cursor:pointer;
+  transition:background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+#logoutBtn .btn-outline:hover{background:rgba(239,68,68,0.06);color:var(--danger);border-color:rgba(239,68,68,0.25)}
+
+.main{flex:1;padding:28px}
+.card{background:var(--surface);padding:16px;border-radius:12px;border:1px solid var(--border);box-shadow:0 6px 18px rgba(2,6,23,0.03)}
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.header-row h2{margin:0}
+.page-sub{margin:4px 0 0;color:var(--muted);font-size:0.9rem}
+
+.section{margin-top:22px}
+.section > h3{margin:0 0 12px;font-size:1.05rem}
+
+/* ---------- Stat cards ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.stat-card{
+  min-height:120px;width:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:20px 16px;
+}
+.stat-card h4{
+  margin:0 0 8px;font-size:0.85rem;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.04em;
+}
+.stat-card p{margin:0;font-size:1.7rem;font-weight:700;color:#0f172a;line-height:1}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-block;padding:8px 12px;border-radius:8px;border:none;
+  background:var(--blue);color:#fff;text-decoration:none;cursor:pointer;
+  font-size:0.9rem;font-family:inherit;
+}
+.btn:hover{background:var(--blue-600)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--blue-600)}
+.btn-outline:hover{background:rgba(37,99,235,0.06)}
+.btn-danger{background:transparent;border:1px solid rgba(239,68,68,0.3);color:var(--danger)}
+.btn-danger:hover{background:rgba(239,68,68,0.06)}
+.btn-small{padding:5px 10px;font-size:0.8rem}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ---------- Filters / forms ---------- */
+.filters{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group label{font-size:0.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em}
+.form-group input, .form-group select, .form-group textarea{
+  padding:9px 11px;border:1px solid var(--border);border-radius:8px;
+  font-family:inherit;font-size:0.9rem;color:#0f172a;background:#fff;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus{
+  outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.08);
+}
+.form-group .hint{font-size:0.72rem;color:var(--muted);text-transform:none;letter-spacing:0}
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.form-grid .full{grid-column:1 / -1}
+.form-actions{display:flex;gap:10px;margin-top:16px}
+
+/* ---------- Table ---------- */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:0.9rem}
+thead th{
+  text-align:left;padding:11px 12px;border-bottom:1px solid var(--border);
+  color:var(--muted);font-size:0.75rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;
+}
+tbody td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(37,99,235,0.02)}
+td.actions{white-space:nowrap}
+.row-blocked{background:rgba(239,68,68,0.03)}
+.application-actions{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.application-status{padding:6px 8px;border:1px solid var(--border);border-radius:8px;font:inherit;color:#0f172a;background:#fff}
+.application-actions button:disabled{opacity:0.6;cursor:wait}
+
+/* ---------- Badges ---------- */
+.badge{
+  display:inline-block;padding:3px 9px;border-radius:999px;
+  font-size:0.75rem;font-weight:600;
+}
+.badge-active{background:rgba(5,150,105,0.1);color:var(--ok)}
+.badge-blocked{background:rgba(239,68,68,0.1);color:var(--danger)}
+.tag{
+  display:inline-block;padding:2px 8px;margin:2px 4px 2px 0;border-radius:6px;
+  background:rgba(37,99,235,0.06);color:var(--blue-600);font-size:0.75rem;
+}
+
+/* ---------- Empty state ---------- */
+.empty{padding:28px;text-align:center;color:var(--muted);font-size:0.92rem}
+
+/* ---------- Student detail panel ---------- */
+.detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:0;padding-top:14px;border-top:1px solid var(--border)}
+.detail-grid > div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.detail-grid dt{color:var(--muted);font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+.detail-grid dd{margin:0;font-size:0.93rem;font-weight:500;overflow-wrap:anywhere}
+
+/* ---------- Branch distribution bars ---------- */
+.bar-track{height:10px;min-width:120px;background:#eef4ff;border-radius:8px;overflow:hidden}
+.bar-fill{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-600))}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 900px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .form-grid{grid-template-columns:repeat(2,1fr)}
+  .detail-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width: 620px){
+  .app{flex-direction:column}
+  .sidebar{width:100%;height:auto;position:static}
+  .nav{display:flex;flex-wrap:wrap;gap:6px}
+  .nav a{margin-bottom:0}
+  #logoutBtn{margin-top:14px}
+  .main{padding:18px}
+  .stats{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+}
+
+
+/* ---------- Job management ---------- */
+.job-form-card h4{margin:0 0 16px;font-size:1rem}
+.job-table-card{margin-top:16px}
+.job-delete-btn{margin-left:6px}
+.form-message{margin:14px 0 0;font-size:0.9rem}
+.form-message-success{color:var(--ok)}
+.form-message-error{color:var(--danger)}
+@media (max-width: 620px){
+  .job-delete-btn{margin-left:0;margin-top:6px}
+}
