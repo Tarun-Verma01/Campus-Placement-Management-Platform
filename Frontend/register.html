@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Registration — placementhub</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="auth-page">
+    <div class="auth-card register-card">
+      <div class="auth-header">
+          <a href="index.html" class="auth-brand">placement<span>hub</span></a>
+          <h1 class="auth-title">Create your account</h1>
+          <p class="auth-subtitle">Build your placement profile</p>
+      </div>
+
+      <form id="registrationForm" class="auth-form">
+        <h3 class="auth-section-title">Personal Information</h3>
+        <div class="form-row-2">
+            <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" class="auth-input" required />
+            </div>
+
+            <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" class="auth-input" required />
+            </div>
+        </div>
+
+        <div class="form-row-2">
+            <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" class="auth-input" required />
+            </div>
+
+            <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" class="auth-input" required />
+            </div>
+        </div>
+
+        <h3 class="auth-section-title">Academic Information</h3>
+        <div class="form-row-2">
+            <div class="form-group">
+            <label for="branch">Branch</label>
+            <select id="branch" name="branch" class="auth-input" required>
+                <option value="">Select branch</option>
+                <option value="CSE">CSE</option>
+                <option value="ECE">ECE</option>
+                <option value="ME">ME</option>
+                <option value="EE">EE</option>
+                <option value="Civil">Civil</option>
+                <option value="IT">IT</option>
+            </select>
+            </div>
+
+            <div class="form-group">
+            <label for="cgpa">CGPA</label>
+            <input type="number" id="cgpa" name="cgpa" class="auth-input" step="0.01" min="0" max="10" required />
+            </div>
+        </div>
+
+        <h3 class="auth-section-title">Skills</h3>
+        
+        <!-- Skills groups: hidden by default -->
+        <div id="skillsCSE" class="skills-group" style="display:none">
+          <strong>CSE Skills</strong>
+          <div class="skills-grid">
+              <label class="skill-chip"><input type="checkbox" value="JavaScript" /> <span>JavaScript</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Python" /> <span>Python</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Java" /> <span>Java</span></label>
+              <label class="skill-chip"><input type="checkbox" value="C++" /> <span>C++</span></label>
+              <label class="skill-chip"><input type="checkbox" value="React" /> <span>React</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Node.js" /> <span>Node.js</span></label>
+              <label class="skill-chip"><input type="checkbox" value="SQL" /> <span>SQL</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Machine Learning" /> <span>Machine Learning</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Data Structures" /> <span>DSA</span></label>
+              <label class="skill-chip"><input type="checkbox" value="HTML/CSS" /> <span>HTML/CSS</span></label>
+          </div>
+        </div>
+
+        <div id="skillsECE" class="skills-group" style="display:none">
+          <strong>ECE Skills</strong>
+          <div class="skills-grid">
+              <label class="skill-chip"><input type="checkbox" value="Embedded Systems" /> <span>Embedded Systems</span></label>
+              <label class="skill-chip"><input type="checkbox" value="VLSI" /> <span>VLSI</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Circuit Design" /> <span>Circuit Design</span></label>
+              <label class="skill-chip"><input type="checkbox" value="MATLAB" /> <span>MATLAB</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Microcontrollers" /> <span>Microcontrollers</span></label>
+              <label class="skill-chip"><input type="checkbox" value="IoT" /> <span>IoT</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Communication Systems" /> <span>Communication Systems</span></label>
+          </div>
+        </div>
+
+        <div id="skillsEE" class="skills-group" style="display:none">
+          <strong>EE Skills</strong>
+          <div class="skills-grid">
+              <label class="skill-chip"><input type="checkbox" value="Power Systems" /> <span>Power Systems</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Circuit Analysis" /> <span>Circuit Analysis</span></label>
+              <label class="skill-chip"><input type="checkbox" value="MATLAB" /> <span>MATLAB</span></label>
+              <label class="skill-chip"><input type="checkbox" value="PLC Programming" /> <span>PLC Programming</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Electrical Machines" /> <span>Electrical Machines</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Control Systems" /> <span>Control Systems</span></label>
+          </div>
+        </div>
+
+        <div id="skillsME" class="skills-group" style="display:none">
+          <strong>ME Skills</strong>
+          <div class="skills-grid">
+              <label class="skill-chip"><input type="checkbox" value="AutoCAD" /> <span>AutoCAD</span></label>
+              <label class="skill-chip"><input type="checkbox" value="SolidWorks" /> <span>SolidWorks</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Thermodynamics" /> <span>Thermodynamics</span></label>
+              <label class="skill-chip"><input type="checkbox" value="CAD/CAM" /> <span>CAD/CAM</span></label>
+              <label class="skill-chip"><input type="checkbox" value="ANSYS" /> <span>ANSYS</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Manufacturing Processes" /> <span>Manufacturing Processes</span></label>
+          </div>
+        </div>
+
+        <div id="skillsCivil" class="skills-group" style="display:none">
+          <strong>Civil Skills</strong>
+          <div class="skills-grid">
+              <label class="skill-chip"><input type="checkbox" value="AutoCAD" /> <span>AutoCAD</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Structural Analysis" /> <span>Structural Analysis</span></label>
+              <label class="skill-chip"><input type="checkbox" value="STAAD Pro" /> <span>STAAD Pro</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Surveying" /> <span>Surveying</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Construction Management" /> <span>Construction Management</span></label>
+              <label class="skill-chip"><input type="checkbox" value="Revit" /> <span>Revit</span></label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="otherSkill">Other skill (optional)</label>
+          <input type="text" id="otherSkill" class="auth-input" />
+        </div>
+
+        <button type="submit" id="registerBtn" class="auth-btn">Register</button>
+      </form>
+      
+      <div class="auth-footer">
+          Already have an account? <a href="login.html">Login</a>
+      </div>
+    </div>
+
+  <script src="js/register.js"></script>
+</body>
+</html>
