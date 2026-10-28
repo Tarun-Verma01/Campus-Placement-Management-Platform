@@ -6,7 +6,7 @@ const container = document.getElementById("applicationsContainer");
 const template = document.getElementById("applicationCardTemplate");
 const emptyState = document.getElementById("emptyState");
 
-// Load applications from MongoDB through the backend API
+// Load applications and related job details.
 async function loadMyApplications() {
     if (!currentStudent) {
         return;
@@ -15,7 +15,8 @@ async function loadMyApplications() {
     try {
         const response = await fetch(API_URL + "/applications", {
             headers: {
-                "Authorization": "Bearer " + localStorage.getItem("studentToken")
+                Authorization:
+                    "Bearer " + localStorage.getItem("studentToken")
             }
         });
 
@@ -25,17 +26,34 @@ async function loadMyApplications() {
 
         const allApplications = await response.json();
 
-        // Show only applications belonging to the logged-in student
+        // Keep only the logged-in student's applications.
         const myApplications = allApplications.filter(function (application) {
             return application.studentEmail === currentStudent.email;
         });
 
-        // Remove previously rendered cards
-        container.querySelectorAll(".app-item:not(#emptyState)").forEach(
-            function (card) {
-                card.remove();
+        // Fetch jobs to obtain location and salary.
+        const jobsResponse = await fetch(API_URL + "/jobs");
+
+        let jobsById = new Map();
+
+        if (jobsResponse.ok) {
+            const jobs = await jobsResponse.json();
+
+            if (Array.isArray(jobs)) {
+                jobsById = new Map(
+                    jobs.map(function (job) {
+                        return [String(job._id), job];
+                    })
+                );
             }
-        );
+        }
+
+        // Remove previously rendered application cards.
+        container
+            .querySelectorAll(".app-item:not(#emptyState)")
+            .forEach(function (card) {
+                card.remove();
+            });
 
         if (myApplications.length === 0) {
             emptyState.style.display = "block";
@@ -47,17 +65,30 @@ async function loadMyApplications() {
         myApplications.forEach(function (application) {
             const card = template.content.cloneNode(true);
 
+            // Support either a populated jobId object or a plain ID.
+            const jobId =
+                application.jobId && application.jobId._id
+                    ? application.jobId._id
+                    : application.jobId;
+
+            const job = jobsById.get(String(jobId));
+
             card.querySelector('[data-field="company"]').textContent =
-                application.company || "—";
+                application.company || (job && job.company) || "—";
 
             card.querySelector('[data-field="role"]').textContent =
-                application.role || "—";
+                application.role || (job && job.role) || "—";
 
             card.querySelector('[data-field="location"]').textContent =
-                application.location || "Not available";
+                (job && job.location) ||
+                application.location ||
+                "Not available";
 
             card.querySelector('[data-field="package"]').textContent =
-                application.package || "Not available";
+                (job && job.salary) ||
+                application.salary ||
+                application.package ||
+                "Not available";
 
             card.querySelector('[data-field="appliedAt"]').textContent =
                 formatDate(application.appliedAt);
@@ -70,15 +101,24 @@ async function loadMyApplications() {
 
     } catch (error) {
         console.error("Applications loading error:", error);
+
         emptyState.style.display = "block";
-        emptyState.querySelector("h2").textContent =
-            "Could not load applications";
-        emptyState.querySelector("p").textContent =
-            "Please check your connection and try again.";
+
+        const heading = emptyState.querySelector("h2, h3");
+        const message = emptyState.querySelector("p");
+
+        if (heading) {
+            heading.textContent = "Could not load applications";
+        }
+
+        if (message) {
+            message.textContent =
+                "Please check your connection and try again.";
+        }
     }
 }
 
-// Format the application date for display
+// Format the application date.
 function formatDate(value) {
     if (!value) {
         return "—";
