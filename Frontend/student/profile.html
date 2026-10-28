@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Profile — placementhub</title>
+  <meta name="description" content="View and update your student profile." />
+  <link rel="stylesheet" href="css/student.css" />
+
+  <!-- Profile-page-specific styles (scoped here to avoid modifying student.css) -->
+  <style>
+    /* ── View Mode ──────────────────────────────────────────────── */
+    .profile-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 32px;
+    }
+
+    .profile-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .profile-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .profile-value {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #0f172a;
+      padding: 6px 0;
+      line-height: 1.5;
+    }
+
+    .profile-skills {
+      grid-column: 1 / -1;
+    }
+
+    .profile-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: flex-end;
+      padding-top: 12px;
+      margin-top: 4px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Edit Mode ─────────────────────────────────────────────── */
+    .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 32px;
+    }
+
+    .edit-full {
+      grid-column: 1 / -1;
+    }
+
+    .edit-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 12px;
+      padding-top: 12px;
+      margin-top: 4px;
+      border-top: 1px solid var(--border);
+    }
+
+    select {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 0.95rem;
+      color: #0f172a;
+    }
+
+    .input-readonly {
+      background-color: #f1f5f9;
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+
+    /* ── Responsive ────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .profile-info,
+      .edit-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- ─── Sidebar navigation ─────────────────────────────────── -->
+    <aside class="sidebar">
+      <a href="../index.html" class="brand" aria-label="placementhub home">placement<span style="color:#1d4ed8">hub</span></a>
+      <nav class="nav" aria-label="Student navigation">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="jobs.html">Jobs</a>
+        <a href="applications.html">Applications</a>
+        <a href="profile.html" class="active" aria-current="page">Profile</a>
+      </nav>
+      <div id="logoutBtn">
+        <button type="button" class="btn-outline" onclick="logout()">Logout</button>
+      </div>
+    </aside>
+
+    <!-- ─── Main content ───────────────────────────────────────── -->
+    <main class="main container" role="main">
+
+      <header class="header-row">
+        <div>
+          <h1>My Profile</h1>
+          <p>Manage your personal and academic information.</p>
+        </div>
+      </header>
+
+      <section class="card" style="margin-top:18px">
+
+        <!-- ─── STATE 1: VIEW MODE ─────────────────────────────── -->
+        <div id="profileView">
+          <div class="profile-info">
+
+            <div class="profile-field">
+              <span class="profile-label">Name</span>
+              <span class="profile-value" id="viewName">—</span>
+            </div>
+
+            <div class="profile-field">
+              <span class="profile-label">Email</span>
+              <span class="profile-value" id="viewEmail">—</span>
+            </div>
+
+            <div class="profile-field">
+              <span class="profile-label">Branch</span>
+              <span class="profile-value" id="viewBranch">—</span>
+            </div>
+
+            <div class="profile-field">
+              <span class="profile-label">CGPA</span>
+              <span class="profile-value" id="viewCgpa">—</span>
+            </div>
+
+            <div class="profile-field profile-skills">
+              <span class="profile-label">Skills</span>
+              <span class="profile-value" id="viewSkills">—</span>
+            </div>
+
+            <div class="profile-actions">
+              <button type="button" id="editProfileBtn" class="btn">Edit Profile</button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ─── STATE 2: EDIT MODE ─────────────────────────────── -->
+        <div id="profileEdit" style="display: none;">
+          <form id="profileForm" class="edit-grid" autocomplete="off">
+
+            <div class="form-group">
+              <label for="editName">Name</label>
+              <input type="text" id="editName" placeholder="Enter your full name" required />
+            </div>
+
+            <div class="form-group">
+              <label for="editEmail">Email</label>
+              <!-- Email is read-only — used as the student identifier -->
+              <input type="email" id="editEmail" class="input-readonly" readonly title="Email cannot be changed" />
+            </div>
+
+            <div class="form-group">
+              <label for="editBranch">Branch</label>
+              <select id="editBranch" required>
+                <option value="" disabled selected>Select your branch</option>
+                <option value="CSE">CSE</option>
+                <option value="IT">IT</option>
+                <option value="ECE">ECE</option>
+                <option value="EEE">EEE</option>
+                <option value="ME">ME</option>
+                <option value="CE">CE</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="editCgpa">CGPA</label>
+              <input type="number" id="editCgpa" placeholder="e.g. 8.5" min="0" max="10" step="0.01" required />
+            </div>
+
+            <div class="form-group edit-full">
+              <label for="editSkills">Skills</label>
+              <input type="text" id="editSkills" placeholder="e.g. JavaScript, Python, SQL" />
+            </div>
+
+            <div class="edit-actions">
+              <button type="submit" id="saveProfileBtn" class="btn">Save Changes</button>
+              <button type="button" id="cancelEditBtn" class="btn">Cancel</button>
+            </div>
+
+          </form>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script src="js/profile.js"></script>
+</body>
+</html>
+

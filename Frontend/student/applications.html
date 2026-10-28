@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Applications - placementhub</title>
+  <meta name="description" content="Track your submitted campus placement applications." />
+  <link rel="stylesheet" href="css/student.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <a href="../index.html" class="brand" aria-label="placementhub home">placement<span style="color:#1d4ed8">hub</span></a>
+
+      <nav class="nav" aria-label="Student navigation">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="jobs.html">Jobs</a>
+        <a href="applications.html" class="active" aria-current="page">Applications</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+
+      <div id="logoutBtn">
+        <button type="button" class="btn-outline" onclick="logout()">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main container" role="main">
+      <header class="header-row">
+        <div>
+          <h1>My Applications</h1>
+          <p>Track the placement applications you have submitted.</p>
+        </div>
+      </header>
+
+      <section id="applicationsContainer" class="app-list" aria-label="Submitted applications">
+        <!-- Application cards will be populated here by a future applications script. -->
+        <template id="applicationCardTemplate">
+          <article class="app-item">
+            <h2 data-field="company">Google</h2>
+            <p data-field="role">Software Engineer</p>
+            <dl>
+              <div>
+                <dt>Location</dt>
+                <dd data-field="location">Bangalore</dd>
+              </div>
+              <div>
+                <dt>Package</dt>
+                <dd data-field="package">20 LPA</dd>
+              </div>
+              <div>
+                <dt>Applied on</dt>
+                <dd data-field="appliedAt">23 Aug 2026</dd>
+              </div>
+              <div>
+                <dt>Status</dt>
+                <dd class="status" data-field="status">Applied</dd>
+              </div>
+            </dl>
+          </article>
+        </template>
+
+        <div id="emptyState" class="app-item" role="status">
+          <h2>No applications yet</h2>
+          <p>Applications you submit will appear here.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script src="js/application.js"></script>
+</body>
+</html>

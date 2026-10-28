@@ -1,0 +1,236 @@
+/* student/css/student.css
+   Simple, clean styles for the student portal. Follow same visual language as landing page.
+*/
+:root{
+  --bg:#fbfdff;
+  --surface:#ffffff;
+  --muted:#6b7280;
+  --border:#e6eef8;
+  --blue:#2563eb;
+  --blue-600:#1d4ed8;
+  --radius:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;color:#0f172a;background:var(--bg);}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+
+/* Layout: sidebar + main */
+.app{
+  display:flex;min-height:100vh;
+}
+.sidebar {
+  width: 220px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+
+  padding: 20px;
+  border-right: 1px solid var(--border);
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.95),
+    rgba(255,255,255,0.9)
+  );
+
+  display: flex;
+  flex-direction: column;
+}
+.brand{font-weight:700;color:#0b1220;text-decoration:none;font-size:1.1rem}
+.nav{margin-top:18px;flex:1}
+.nav a{display:block;padding:10px 12px;color:var(--muted);text-decoration:none;border-radius:8px;margin-bottom:6px;transition:background 0.2s ease, color 0.2s ease}
+.nav a.active, .nav a:hover{background:rgba(37,99,235,0.06);color:var(--blue-600)}
+.logout{margin-top:18px;color:var(--muted);font-size:0.95rem}
+
+/* Logout button — styled as a sidebar action */
+#logoutBtn{
+  margin-top:auto;
+  padding-top:16px;
+  border-top:1px solid var(--border);
+}
+#logoutBtn .btn-outline{
+  display:block;
+  width:100%;
+  padding:10px 14px;
+  font-size:0.9rem;
+  font-weight:600;
+  text-align:center;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--muted);
+  cursor:pointer;
+  transition:background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+#logoutBtn .btn-outline:hover{
+  background:rgba(239,68,68,0.06);
+  color:#dc2626;
+  border-color:rgba(239,68,68,0.25);
+}
+
+.main{
+  flex:1;padding:28px;
+}
+.card{background:var(--surface);padding:16px;border-radius:12px;border:1px solid var(--border);box-shadow:0 6px 18px rgba(2,6,23,0.03);}
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+
+/* Dashboard summary */
+.dashboard-section{margin-top:22px}
+.dashboard-section > h3{margin:0 0 12px;font-size:1.05rem}
+.dashboard-overview{margin-top:20px}
+.dashboard-page .stats{display:flex;gap:12px;margin-top:0}
+.dashboard-page .stat{flex:1;padding:14px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfdff);text-align:center;border:1px solid var(--border)}
+.dashboard-page .stat strong{display:block;font-size:1.6rem}
+
+/* --- Application Overview stat cards --- */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+.stat-card {
+    min-height: 120px;
+    width: 100%;
+    box-sizing: border-box;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:20px 16px;
+}
+.stat-card h4{
+    margin:0 0 8px;
+    font-size:0.85rem;
+    font-weight:600;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+}
+.stat-card p{
+    margin:0;
+    font-size:1.7rem;
+    font-weight:700;
+    color:#0f172a;
+    line-height:1;
+}
+
+/* --- Eligibility Snapshot --- */
+.dashboard-page .eligibility-snapshot{
+    min-height:90px;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    gap:6px;
+    padding:20px 24px;
+}
+.dashboard-page .eligibility-snapshot h4{
+    margin:0;
+    font-size:1rem;
+    font-weight:700;
+    color:#0f172a;
+}
+.dashboard-page .eligibility-snapshot p{
+    margin:0;
+    font-size:0.9rem;
+    color:var(--muted);
+    line-height:1.4;
+}
+
+/* --- Upcoming Deadlines --- */
+.dashboard-page .deadline-list{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:16px;
+}
+/* JS creates .card elements inside .deadline-list */
+.deadline-list > .card{
+    display:flex;
+    flex-direction:column;
+    padding:20px;
+    min-height:120px;
+}
+.deadline-list > .card h4{
+    margin:0;
+    font-size:1rem;
+    font-weight:700;
+    color:#0f172a;
+}
+.deadline-list > .card p{
+    margin:0;
+    color:var(--muted);
+    font-size:0.88rem;
+    line-height:1.4;
+}
+.deadline-list > .card p:first-of-type{
+    margin-top:6px;
+}
+.deadline-list > .card p:last-of-type{
+    margin-top:auto;
+    padding-top:10px;
+    font-size:0.82rem;
+    font-weight:600;
+    color:var(--blue-600);
+}
+
+/* Keep explicit deadline-card rules for reference/compatibility */
+.dashboard-page .deadline-card{padding:20px;border-radius:10px;border:1px solid var(--border);background:var(--surface);box-shadow:0 6px 18px rgba(2,6,23,0.03)}
+.dashboard-page .deadline-card h4{margin:0;color:#0f172a;font-size:1rem}
+.dashboard-page .deadline-card p{margin:6px 0 0;color:var(--muted);font-size:0.9rem}
+.dashboard-page .deadline-card .deadline-date{margin-top:12px;color:var(--blue-600);font-size:0.85rem;font-weight:600}
+
+.recommended{display:flex;gap:10px;margin-top:12px}
+.rec-job{padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface)}
+
+.readiness{margin-top:16px}
+.progress{height:12px;background:linear-gradient(90deg,#e9f4ff,#f8fbff);border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-600));}
+
+.recommended-section .recommended{margin-top:0}
+.readiness.dashboard-section{margin-top:22px}
+
+/* Jobs list */
+.controls{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+.search{flex:1}
+.job-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.job-card{padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--surface)}
+.job-meta{font-size:0.9rem;color:var(--muted);margin:6px 0}
+.job-actions{display:flex;gap:8px;margin-top:8px}
+
+/* Applications list */
+.app-list{display:flex;flex-direction:column;gap:14px;margin-top:24px}
+.app-item{padding:20px;border-radius:12px;border:1px solid var(--border);background:var(--surface);box-shadow:0 6px 18px rgba(2,6,23,0.04)}
+.app-item h2{margin:0;color:#0f172a;font-size:1.15rem}
+.app-item > p{margin:6px 0 18px;color:var(--muted);font-size:0.95rem}
+.app-item dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:0;padding-top:16px;border-top:1px solid var(--border)}
+.app-item dl > div{min-width:0;display:flex;flex-direction:column;gap:5px}
+.app-item dt{color:var(--muted);font-size:0.75rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase}
+.app-item dd{margin:0;color:#0f172a;font-size:0.95rem;font-weight:500;overflow-wrap:anywhere}
+.app-item .status{font-weight:600;color:var(--blue-600)}
+
+/* Profile form */
+.form-row{display:flex;gap:12px}
+.form-group{display:flex;flex-direction:column;margin-bottom:10px}
+input[type=text], input[type=email], input[type=number], textarea{padding:8px;border-radius:8px;border:1px solid var(--border)}
+.btn{display:inline-block;padding:8px 12px;border-radius:8px;border:none;background:var(--blue);color:#fff;text-decoration:none}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--blue-600)}
+
+/* Responsive */
+@media (max-width:900px){
+  .app{flex-direction:column}
+  .sidebar{width:100%;flex-direction:row;gap:12px;align-items:center}
+  .nav{display:flex;gap:8px;flex:unset;margin-top:0}
+  #logoutBtn{margin-top:0;padding-top:0;border-top:none;margin-left:auto}
+  #logoutBtn .btn-outline{width:auto}
+  .main{padding:16px}
+  .stats{grid-template-columns:repeat(2,1fr) !important}
+  .app-item dl{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dashboard-page .deadline-list{grid-template-columns:1fr}
+}
+
+@media (max-width:520px){
+  .stats{grid-template-columns:1fr !important}
+  .app-item{padding:16px}
+  .app-item dl{grid-template-columns:1fr;gap:12px}
+}
