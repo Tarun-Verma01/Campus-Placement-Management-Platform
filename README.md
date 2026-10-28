@@ -1,213 +1,278 @@
-# 🎓 Campus Placement Management Platform
+# Campus Placement Management Platform
 
-A web-based campus placement management platform designed to simplify the placement process for students and placement administrators.
+A web-based placement management system designed to centralize campus recruitment workflows for students and placement administrators.
 
-The platform provides a centralized interface where students can create their placement profile, explore job opportunities, check eligibility, apply for jobs, and track their applications. Administrators can monitor registered students, view placement statistics, and manage student account access.
+The platform provides student and administrative interfaces for managing placement profiles, browsing job opportunities, evaluating eligibility, tracking applications, and monitoring placement activity. The project combines a JavaScript frontend with a Node.js and Express backend and MongoDB for data persistence.
 
-> **Current Status:** Phase 1 — Frontend prototype with browser-based data storage.
+## Overview
 
----
+Campus placement processes often rely on disconnected spreadsheets, forms, emails, and manual updates. These workflows make it difficult to maintain consistent student records, communicate placement opportunities, and track application progress.
 
-## 📌 Problem Statement
+The Campus Placement Management Platform aims to bring these activities into a single application with dedicated interfaces for students and administrators.
 
-Campus placement activities are often managed using scattered spreadsheets, forms, emails, and manual communication.
+### Student Portal
 
-This can make it difficult for students to:
+The student portal supports the following workflows:
 
-- Find relevant placement opportunities
-- Understand whether they are eligible for a job
-- Keep track of submitted applications
-- Monitor application statuses
-- Maintain updated academic and skill information
+- Student registration and login
+- Profile creation and management
+- Academic information and skills management
+- Browsing available job opportunities
+- Checking eligibility based on branch and minimum CGPA
+- Viewing job skill-match percentages
+- Applying for eligible opportunities
+- Tracking submitted applications and their statuses
+- Viewing application summaries and upcoming deadlines
 
-Placement administrators also need a simple way to monitor students and placement-related data.
+### Admin Portal
 
-This project aims to bring these activities together into one centralized platform.
+The admin portal provides administrative functionality for:
 
----
+- Viewing placement dashboard statistics
+- Monitoring registered students
+- Viewing job and company counts
+- Monitoring application counts
+- Viewing branch-wise student distribution
+- Managing student account access through blocking and unblocking
 
-## 💡 Solution
+Availability of individual features depends on the corresponding frontend and backend implementation.
 
-**Campus Placement Management Platform** provides separate interfaces for students and administrators.
+## Core Features
 
-### 👨‍🎓 Student Portal
+### Authentication and Access Control
 
-Students can:
-
-- Register and create their placement profile
-- Log in securely within the application
-- View and edit their profile
-- Add academic information and skills
-- Browse available placement opportunities
-- Check eligibility based on branch and CGPA
-- View skill-match percentages for jobs
-- Apply for eligible jobs
-- Prevent duplicate applications
-- Track submitted applications
-- View application statuses
-- View application statistics on the dashboard
-- See upcoming eligible job deadlines
-
-### 🧑‍💼 Admin Portal
-
-Administrators can:
-
-- Log in through the admin account
-- View dashboard statistics
-- View the number of registered students
-- View the number of jobs posted
-- View the number of companies
-- View total applications
-- View branch-wise student distribution
-- View registered students
-- Block and unblock student accounts
-
----
-
-## ✨ Key Features
-
-### Authentication
-
+- Student and administrator login interfaces
 - Student registration
-- Student login
-- Admin login
-- Authentication guards for protected pages
-- Student account blocking
+- JWT-based authentication support in the backend
+- Authentication middleware for protected API operations
+- Student account access management
 - Logout functionality
 
-### Student Dashboard
-
-The dashboard provides:
-
-- **Application Overview**
-  - Total Applications
-  - Shortlisted
-  - Interview
-  - Selected
-
-- **Eligibility Snapshot**
-  - Shows how many available postings the student is eligible for
-
-- **Upcoming Deadlines**
-  - Shows eligible jobs
-  - Excludes jobs already applied for
-  - Sorts jobs by deadline
-  - Displays the three nearest deadlines
+Authentication verifies a user's identity, while authorization determines which operations that user is permitted to perform. Protected routes must enforce the appropriate access-control rules.
 
 ### Job Management
 
-Students can:
+- Job listing and job information display
+- Company, role, location, and compensation details
+- Minimum CGPA and eligible branch requirements
+- Required skills and skill-match calculations
+- Eligibility evaluation
+- Application submission for eligible jobs
 
-- Browse available jobs
-- View company and role information
-- View location and salary
-- View minimum CGPA
-- View eligible branches
-- View required skills
-- View skill-match percentage
-- Check eligibility
-- Apply for eligible jobs
+### Student Profile Management
 
-### Profile Management
-
-Students can:
-
-- View personal information
-- View academic information
-- View skills
-- Edit their profile
-- Update branch and CGPA
-- Update their skills
-- Cancel profile editing
+- Personal and academic information
+- Branch and CGPA management
+- Skills management
+- Profile viewing and editing
 
 ### Application Tracking
 
-Students can view:
+- Viewing submitted applications
+- Displaying company and job information
+- Tracking application dates and statuses
+- Summarizing application progress
 
-- Company
-- Job role
-- Location
-- Package
-- Application date
-- Application status
+### Administrative Dashboard
 
-### Admin Dashboard
-
-Administrators can view:
-
-- Registered student count
-- Job count
-- Company count
-- Application count
+- Student, job, company, and application statistics
 - Branch-wise student distribution
-- Student account status
+- Student account status monitoring
+- Student blocking and unblocking operations
 
-Administrators can also:
+## Technology Stack
 
-- Block students
-- Unblock students
+| Layer | Technologies |
+|---|---|
+| Frontend | HTML5, CSS3, JavaScript |
+| Backend | Node.js, Express.js |
+| Database | MongoDB |
+| Database ODM | Mongoose |
+| Authentication | JSON Web Tokens (JWT) |
+| Configuration | dotenv |
+| Middleware | Express middleware, CORS |
+| Development tools | Git, GitHub, VS Code, Live Server, Nodemon |
 
----
+## System Architecture
 
-## 🛠️ Technology Stack
+The application follows a modular client-server architecture.
 
-### Frontend
+```text
+Frontend
+  │
+  │ HTTP requests / JSON
+  ▼
+Express API Server
+  │
+  ▼
+Route Handlers
+  │
+  ▼
+Authentication Middleware
+  │
+  ▼
+Controllers
+  │
+  ▼
+Mongoose Models
+  │
+  ▼
+MongoDB
+```
 
-- HTML5
-- CSS3
-- JavaScript
+The authentication middleware is applied where required; public endpoints may bypass it.
 
-### Data Storage
+### Architectural Responsibilities
 
-- Browser `localStorage`
+- **Frontend:** Renders the user interface and sends API requests.
+- **Express server:** Initializes the application, registers middleware, and mounts API routes.
+- **Routes:** Map HTTP methods and paths to request handlers.
+- **Authentication middleware:** Verifies JWTs for protected operations.
+- **Controllers:** Handle request processing and business logic.
+- **Models:** Define data structures and provide database access through Mongoose.
+- **MongoDB:** Stores application data persistently.
 
-### Development
+The backend separates routing, business logic, and data access to improve maintainability and make individual components easier to extend.
 
-- Git
-- GitHub
-- VS Code
-- Live Server
-
----
-
-## 📁 Project Structure
+## Repository Structure
 
 ```text
 Campus-Placement-Management-Platform/
+├── Backend/
+│   ├── config/
+│   │   └── db.js
+│   ├── controllers/
+│   ├── Middleware/
+│   ├── models/
+│   ├── Routes/
+│   ├── .gitignore
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── server.js
+│   └── README.md
 │
-├── admin/
-│   ├── admin-dashboard.html
+├── Frontend/
+│   ├── admin/
+│   ├── student/
 │   ├── css/
-│   │   └── admin.css
-│   └── js/
-│       ├── admin-common.js
-│       └── admin-dashboard.js
+│   ├── js/
+│   ├── index.html
+│   ├── login.html
+│   └── register.html
 │
-├── css/
-│   └── style.css
-│
-├── js/
-│   ├── login.js
-│   └── register.js
-│
-├── student/
-│   ├── applications.html
-│   ├── dashboard.html
-│   ├── jobs.html
-│   ├── profile.html
-│   │
-│   ├── css/
-│   │   ├── jobs.css
-│   │   └── student.css
-│   │
-│   └── js/
-│       ├── application.js
-│       ├── common.js
-│       ├── dashboard.js
-│       ├── data.js
-│       ├── jobs.js
-│       └── profile.js
-│
-├── index.html
-├── login.html
-└── register.html
+└── README.md
+```
+
+The `Backend/README.md` file contains backend-specific architecture, configuration, and setup documentation.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js and npm
+- A MongoDB database, either local or hosted
+- Git
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Tarun-Verma01/Campus-Placement-Management-Platform.git
+cd Campus-Placement-Management-Platform
+```
+
+### 2. Configure the backend
+
+```bash
+cd Backend
+npm install
+```
+
+Create a local `.env` file using the variable names expected by the backend source code. Typical configuration includes a MongoDB connection URI, a JWT signing secret, and a server port.
+
+Do not commit `.env` or expose credentials in frontend code.
+
+### 3. Start the backend
+
+Use the npm script defined in `Backend/package.json`. For example, if configured:
+
+```bash
+npm run dev
+```
+
+The backend uses port `5000` by default in its current server configuration, unless overridden by the `PORT` environment variable.
+
+### 4. Verify the API
+
+When the server is running, open:
+
+```text
+http://localhost:5000/api/health
+```
+
+A successful response confirms that the health-check endpoint is responding.
+
+### 5. Run the frontend
+
+Open the frontend through a local development server, such as VS Code Live Server, and ensure its API requests point to the running backend.
+
+The exact frontend startup procedure and API base URL depend on the current frontend configuration.
+
+## API Overview
+
+The backend registers the following route prefixes:
+
+| Prefix | Purpose |
+|---|---|
+| `/api/jobs` | Job-related operations |
+| `/api/students` | Student-related operations |
+| `/api/applications` | Application-related operations |
+| `/api/admin` | Administrative operations |
+| `/api/health` | API health check |
+
+Refer to the backend route files and controllers for the specific endpoints, supported HTTP methods, request formats, and authentication requirements.
+
+## Security and Configuration
+
+- Keep `.env` and secret keys out of version control.
+- Validate request data before processing it.
+- Protect restricted operations with authentication and appropriate authorization checks.
+- Avoid returning sensitive information in API responses.
+- Configure CORS according to the application's deployment environment.
+- Use HTTPS and secure deployment settings in production.
+
+## Development Workflow
+
+The project uses Git and GitHub for version control and collaboration.
+
+A typical contribution workflow is:
+
+1. Update the local `main` branch.
+2. Create a feature branch.
+3. Implement and test the change.
+4. Commit the relevant files.
+5. Push the branch to GitHub.
+6. Open a pull request against `main`.
+7. Review and merge the pull request.
+
+Keep changes focused and avoid committing generated dependencies, local configuration files, or secrets.
+
+## Project Status
+
+The project is being developed incrementally, with frontend functionality and backend API integration brought together in the shared repository.
+
+The backend includes modular API routes, controllers, Mongoose models, database connectivity, and JWT authentication middleware. End-to-end behavior, route-level authorization, and deployment readiness should be confirmed through testing before the application is described as production-ready.
+
+## Future Improvements
+
+Potential areas for further development include:
+
+- Automated API and integration tests
+- Consistent request validation and error handling
+- Comprehensive role-based authorization
+- API documentation with endpoint schemas
+- Centralized logging and monitoring
+- Production deployment and environment-specific configuration
+
+## License
+
+Add a license if and when the project is distributed under a specific open-source or proprietary license.
