@@ -1,4 +1,3 @@
-
 const currentStudent = authGuard();
 
 const API_URL = "http://localhost:5000/api";
@@ -14,7 +13,11 @@ async function loadMyApplications() {
     }
 
     try {
-        const response = await fetch(API_URL + "/applications");
+        const response = await fetch(API_URL + "/applications", {
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("studentToken")
+            }
+        });
 
         if (!response.ok) {
             throw new Error("Could not load applications.");

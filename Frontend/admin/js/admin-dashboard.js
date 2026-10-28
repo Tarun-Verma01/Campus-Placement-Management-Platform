@@ -1,6 +1,11 @@
-
+// Backend API address
 const API_URL = "http://localhost:5000/api";
 
+// Store data received from MongoDB
+let students = [];
+let jobs = [];
+
+// Allowed application statuses
 const APPLICATION_STATUSES = [
     "Applied",
     "Shortlisted",
@@ -8,144 +13,179 @@ const APPLICATION_STATUSES = [
     "Rejected"
 ];
 
-let students = [];
 
-// ---------- statistics ----------
+// ==========================================
+// 1. GET ADMIN TOKEN
+// ==========================================
+
+function getAdminToken() {
+    return localStorage.getItem("adminToken");
+}
+
+
+// ==========================================
+// 2. DASHBOARD STATISTICS
+// ==========================================
 
 async function showStats() {
     try {
+        // Fetch all jobs
         const jobResponse = await fetch(API_URL + "/jobs");
 
         if (!jobResponse.ok) {
             throw new Error("Could not load jobs.");
         }
 
-        const jobs = await jobResponse.json();
+        const allJobs = await jobResponse.json();
 
-        let applications = null;
-
-        try {
-            const response = await fetch(API_URL + "/applications");
-
-            if (!response.ok) {
-                throw new Error("Could not load applications.");
+        // Fetch all applications using admin token
+        const applicationResponse = await fetch(
+            API_URL + "/applications",
+            {
+                headers: {
+                    Authorization: "Bearer " + getAdminToken()
+                }
             }
+        );
 
-            applications = await response.json();
-
-            if (!Array.isArray(applications)) {
-                throw new Error("Invalid application data.");
-            }
-
-            showApplications(applications);
-        } catch (error) {
-            showApplicationsError(error.message);
+        if (!applicationResponse.ok) {
+            throw new Error("Could not load applications.");
         }
 
-        const companies = jobs
-            .map(function (job) {
-                return job.company;
-            })
-            .filter(function (name, index, all) {
-                return all.indexOf(name) === index;
-            });
+        const applications = await applicationResponse.json();
 
-        const cards = [
-            { label: "Registered Students", value: students.length },
-            { label: "Jobs Posted", value: jobs.length },
-            { label: "Companies", value: companies.length },
+        // Count unique companies
+        const companies = [];
+
+        allJobs.forEach(function (job) {
+            if (!companies.includes(job.company)) {
+                companies.push(job.company);
+            }
+        });
+
+        // Prepare dashboard statistics
+        const statistics = [
+            {
+                label: "Registered Students",
+                value: students.length
+            },
+            {
+                label: "Jobs Posted",
+                value: allJobs.length
+            },
+            {
+                label: "Companies",
+                value: companies.length
+            },
             {
                 label: "Applications",
-                value: applications === null
-                    ? "Unavailable"
-                    : applications.length
+                value: applications.length
             }
         ];
 
-        document.getElementById("statsRow").innerHTML = cards.map(
-            function (card) {
-                return '<div class="stat-card"><h4>' +
-                    card.label +
-                    "</h4><p>" +
-                    card.value +
-                    "</p></div>";
-            }
-        ).join("");
+        // Display statistics
+        const statsRow = document.getElementById("statsRow");
+
+        statsRow.innerHTML = statistics.map(function (stat) {
+            return `
+                <div class="stat-card">
+                    <h4>${stat.label}</h4>
+                    <p>${stat.value}</p>
+                </div>
+            `;
+        }).join("");
+
+        // Display application table
+        showApplications(applications);
 
     } catch (error) {
         console.error("Dashboard statistics error:", error);
-        alert("Could not load dashboard statistics: " + error.message);
+
+        alert(
+            "Could not load dashboard statistics: " +
+            error.message
+        );
     }
 }
 
-// ---------- applications ----------
+
+// ==========================================
+// 3. APPLICATION MANAGEMENT
+// ==========================================
 
 function showApplications(applications) {
-    const body = document.getElementById("applicationsBody");
-    const empty = document.getElementById("applicationsEmpty");
-    const error = document.getElementById("applicationsError");
+    const tableBody = document.getElementById("applicationsBody");
+    const emptyMessage = document.getElementById("applicationsEmpty");
+    const errorMessage = document.getElementById("applicationsError");
 
-    body.replaceChildren();
-    error.style.display = "none";
+    tableBody.replaceChildren();
+    errorMessage.style.display = "none";
 
     applications.forEach(function (application) {
         const row = document.createElement("tr");
 
-        [
+        // Display application information
+        const values = [
             application.studentEmail,
             application.company,
             application.role,
             formatApplicationDate(application.appliedAt)
-        ].forEach(function (value) {
+        ];
+
+        values.forEach(function (value) {
             const cell = document.createElement("td");
             cell.textContent = value || "—";
             row.appendChild(cell);
         });
 
+        // Display current status
         const statusCell = document.createElement("td");
         statusCell.className = "application-current-status";
         statusCell.textContent = application.status || "—";
+
         row.appendChild(statusCell);
 
+        // Create status dropdown
         const actionCell = document.createElement("td");
-        const actions = document.createElement("div");
-        actions.className = "application-actions";
+        const statusDropdown = document.createElement("select");
 
-        const statusSelect = document.createElement("select");
-        statusSelect.className = "application-status";
-        statusSelect.setAttribute(
-            "aria-label",
-            "Select application status"
-        );
+        statusDropdown.className = "application-status";
 
         APPLICATION_STATUSES.forEach(function (status) {
             const option = document.createElement("option");
+
             option.value = status;
             option.textContent = status;
-            statusSelect.appendChild(option);
+
+            statusDropdown.appendChild(option);
         });
 
-        statusSelect.value = APPLICATION_STATUSES.includes(
+        statusDropdown.value = APPLICATION_STATUSES.includes(
             application.status
         ) ? application.status : "Applied";
 
+        // Create update button
         const updateButton = document.createElement("button");
+
         updateButton.type = "button";
         updateButton.className = "btn btn-small";
         updateButton.textContent = "Update";
         updateButton.dataset.applicationId = application._id || "";
         updateButton.disabled = !application._id;
 
-        actions.appendChild(statusSelect);
-        actions.appendChild(updateButton);
-        actionCell.appendChild(actions);
+        actionCell.appendChild(statusDropdown);
+        actionCell.appendChild(updateButton);
+
         row.appendChild(actionCell);
-        body.appendChild(row);
+        tableBody.appendChild(row);
     });
 
-    empty.style.display = applications.length === 0 ? "block" : "none";
+    emptyMessage.style.display =
+        applications.length === 0 ? "block" : "none";
 }
 
+
+// Format application date
 function formatApplicationDate(value) {
     if (!value) {
         return "—";
@@ -153,36 +193,51 @@ function formatApplicationDate(value) {
 
     const date = new Date(value);
 
-    return Number.isNaN(date.getTime())
-        ? value
-        : date.toLocaleDateString();
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+
+    return date.toLocaleDateString();
 }
 
+
+// Display application errors
 function showApplicationsError(message) {
-    const error = document.getElementById("applicationsError");
-    error.textContent = "Could not load applications: " + message;
-    error.style.display = "block";
+    const errorElement = document.getElementById("applicationsError");
+
+    errorElement.textContent =
+        "Could not load applications: " + message;
+
+    errorElement.style.display = "block";
 }
 
+
+// Update application status
 async function updateApplicationStatus(button) {
     const row = button.closest("tr");
-    const statusSelect = row.querySelector(".application-status");
+
+    const dropdown = row.querySelector(".application-status");
     const statusCell = row.querySelector(".application-current-status");
-    const selectedStatus = statusSelect.value;
+
     const applicationId = button.dataset.applicationId;
+    const selectedStatus = dropdown.value;
 
     button.disabled = true;
 
     try {
         const response = await fetch(
-            API_URL + "/applications/" +
-            encodeURIComponent(applicationId),
+            API_URL + "/applications/" + applicationId,
             {
                 method: "PUT",
+
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + getAdminToken()
                 },
-                body: JSON.stringify({ status: selectedStatus })
+
+                body: JSON.stringify({
+                    status: selectedStatus
+                })
             }
         );
 
@@ -190,34 +245,35 @@ async function updateApplicationStatus(button) {
 
         if (!response.ok) {
             throw new Error(
-                data.message || "Could not update application status."
+                data.message || "Could not update application."
             );
         }
 
-        if (!data || data.status !== selectedStatus) {
-            throw new Error("The server did not confirm the new status.");
-        }
-
+        // Update the table after server confirmation
         statusCell.textContent = data.status;
 
     } catch (error) {
-        alert("Could not update application status: " + error.message);
+        alert(
+            "Could not update application status: " +
+            error.message
+        );
     } finally {
         button.disabled = false;
     }
 }
 
 
-// ---------- job management ----------
+// ==========================================
+// 4. JOB MANAGEMENT
+// ==========================================
 
-let jobs = [];
-
+// Fetch all jobs
 async function loadJobs() {
-    const body = document.getElementById("jobsBody");
-    const empty = document.getElementById("jobsEmpty");
-    const error = document.getElementById("jobsError");
+    const tableBody = document.getElementById("jobsBody");
+    const emptyMessage = document.getElementById("jobsEmpty");
+    const errorElement = document.getElementById("jobsError");
 
-    error.style.display = "none";
+    errorElement.style.display = "none";
 
     try {
         const response = await fetch(API_URL + "/jobs");
@@ -229,72 +285,89 @@ async function loadJobs() {
         jobs = await response.json();
 
         if (!Array.isArray(jobs)) {
-            throw new Error("Invalid job data received.");
+            throw new Error("Invalid job data.");
         }
 
         showJobs();
+
     } catch (error) {
         console.error("Job loading error:", error);
-        body.replaceChildren();
-        empty.style.display = "none";
-        errorMessage("Could not load jobs: " + error.message);
-    }
 
-    function errorMessage(message) {
-        error.textContent = message;
-        error.style.display = "block";
+        tableBody.replaceChildren();
+        emptyMessage.style.display = "none";
+
+        errorElement.textContent =
+            "Could not load jobs: " + error.message;
+
+        errorElement.style.display = "block";
     }
 }
 
-function showJobs() {
-    const body = document.getElementById("jobsBody");
-    const empty = document.getElementById("jobsEmpty");
 
-    body.replaceChildren();
+// Display jobs in the table
+function showJobs() {
+    const tableBody = document.getElementById("jobsBody");
+    const emptyMessage = document.getElementById("jobsEmpty");
+
+    tableBody.replaceChildren();
 
     jobs.forEach(function (job) {
         const row = document.createElement("tr");
 
-        [
+        const values = [
             job.company,
             job.role,
             job.location,
             job.salary,
             job.minCGPA,
-            Array.isArray(job.branches) ? job.branches.join(", ") : "—",
+            Array.isArray(job.branches)
+                ? job.branches.join(", ")
+                : "—",
             formatJobDate(job.deadline)
-        ].forEach(function (value) {
+        ];
+
+        values.forEach(function (value) {
             const cell = document.createElement("td");
+
             cell.textContent = value ?? "—";
+
             row.appendChild(cell);
         });
 
+        // Edit button
         const actionCell = document.createElement("td");
         actionCell.className = "actions";
 
         const editButton = document.createElement("button");
+
         editButton.type = "button";
         editButton.className = "btn btn-small";
         editButton.textContent = "Edit";
         editButton.dataset.editJobId = job._id || "";
-        editButton.disabled = !job._id;
 
+        // Delete button
         const deleteButton = document.createElement("button");
+
         deleteButton.type = "button";
-        deleteButton.className = "btn btn-danger btn-small job-delete-btn";
+        deleteButton.className =
+            "btn btn-danger btn-small job-delete-btn";
+
         deleteButton.textContent = "Delete";
         deleteButton.dataset.deleteJobId = job._id || "";
-        deleteButton.disabled = !job._id;
 
         actionCell.appendChild(editButton);
         actionCell.appendChild(deleteButton);
+
         row.appendChild(actionCell);
-        body.appendChild(row);
+        tableBody.appendChild(row);
     });
 
-    empty.style.display = jobs.length === 0 ? "block" : "none";
+    emptyMessage.style.display =
+        jobs.length === 0 ? "block" : "none";
 }
 
+
+// Format job deadline
 function formatJobDate(value) {
     if (!value) {
         return "—";
@@ -302,27 +375,42 @@ function formatJobDate(value) {
 
     const date = new Date(value);
 
-    return Number.isNaN(date.getTime())
-        ? value
-        : date.toLocaleDateString();
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+
+    return date.toLocaleDateString();
 }
 
+
+// Display a message below the job form
 function showJobFormMessage(message, isError) {
     const messageElement = document.getElementById("jobFormMessage");
+
     messageElement.textContent = message;
-    messageElement.className = isError ? "form-message form-message-error" : "form-message form-message-success";
+
+    messageElement.className = isError
+        ? "form-message form-message-error"
+        : "form-message form-message-success";
+
     messageElement.style.display = "block";
 }
 
+
+// Reset job form
 function resetJobForm() {
     document.getElementById("jobForm").reset();
     document.getElementById("jobId").value = "";
+
     document.getElementById("jobFormTitle").textContent = "Add New Job";
     document.getElementById("saveJobBtn").textContent = "Add Job";
+
     document.getElementById("cancelJobEditBtn").style.display = "none";
     document.getElementById("jobFormMessage").style.display = "none";
 }
 
+
+// Load existing job details into the form
 function editJob(jobId) {
     const job = jobs.find(function (item) {
         return item._id === jobId;
@@ -337,58 +425,105 @@ function editJob(jobId) {
     document.getElementById("jobRole").value = job.role || "";
     document.getElementById("jobLocation").value = job.location || "";
     document.getElementById("jobSalary").value = job.salary || "";
-    document.getElementById("jobMinCGPA").value = job.minCGPA ?? "";
+
+    document.getElementById("jobMinCGPA").value =
+        job.minCGPA ?? "";
+
     document.getElementById("jobDeadline").value = job.deadline
         ? new Date(job.deadline).toISOString().slice(0, 10)
         : "";
-    document.getElementById("jobBranches").value = Array.isArray(job.branches)
-        ? job.branches.join(", ")
-        : "";
-    document.getElementById("jobSkills").value = Array.isArray(job.requiredSkills)
-        ? job.requiredSkills.join(", ")
-        : "";
+
+    document.getElementById("jobBranches").value =
+        Array.isArray(job.branches)
+            ? job.branches.join(", ")
+            : "";
+
+    document.getElementById("jobSkills").value =
+        Array.isArray(job.requiredSkills)
+            ? job.requiredSkills.join(", ")
+            : "";
 
     document.getElementById("jobFormTitle").textContent = "Edit Job";
     document.getElementById("saveJobBtn").textContent = "Save Changes";
-    document.getElementById("cancelJobEditBtn").style.display = "inline-block";
+
+    document.getElementById("cancelJobEditBtn").style.display =
+        "inline-block";
+
     document.getElementById("jobFormMessage").style.display = "none";
-    document.getElementById("jobManagement").scrollIntoView({ behavior: "smooth" });
+
+    document.getElementById("jobManagement").scrollIntoView({
+        behavior: "smooth"
+    });
 }
 
+
+// Add a new job or update an existing job
 async function saveJob(event) {
     event.preventDefault();
 
+    const token = getAdminToken();
     const jobId = document.getElementById("jobId").value;
+
+    // Collect values from the form
     const job = {
         company: document.getElementById("jobCompany").value.trim(),
         role: document.getElementById("jobRole").value.trim(),
         location: document.getElementById("jobLocation").value.trim(),
         salary: document.getElementById("jobSalary").value.trim(),
-        minCGPA: Number(document.getElementById("jobMinCGPA").value),
+
+        minCGPA: Number(
+            document.getElementById("jobMinCGPA").value
+        ),
+
         deadline: document.getElementById("jobDeadline").value,
+
         branches: document.getElementById("jobBranches").value
-            .split(",").map(function (value) { return value.trim(); }).filter(Boolean),
+            .split(",")
+            .map(function (branch) {
+                return branch.trim();
+            })
+            .filter(Boolean),
+
         requiredSkills: document.getElementById("jobSkills").value
-            .split(",").map(function (value) { return value.trim(); }).filter(Boolean)
+            .split(",")
+            .map(function (skill) {
+                return skill.trim();
+            })
+            .filter(Boolean)
     };
 
     if (job.branches.length === 0) {
-        showJobFormMessage("Enter at least one eligible branch.", true);
+        showJobFormMessage(
+            "Enter at least one eligible branch.",
+            true
+        );
+
         return;
     }
 
-    const button = document.getElementById("saveJobBtn");
-    button.disabled = true;
+    const saveButton = document.getElementById("saveJobBtn");
+    saveButton.disabled = true;
 
     try {
-        const response = await fetch(
-            API_URL + "/jobs" + (jobId ? "/" + encodeURIComponent(jobId) : ""),
-            {
-                method: jobId ? "PUT" : "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(job)
-            }
-        );
+        let url = API_URL + "/jobs";
+        let method = "POST";
+
+        // If jobId exists, update that job instead
+        if (jobId) {
+            url = API_URL + "/jobs/" + jobId;
+            method = "PUT";
+        }
+
+        const response = await fetch(url, {
+            method: method,
+
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token
+            },
+
+            body: JSON.stringify(job)
+        });
 
         const data = await response.json();
 
@@ -396,30 +531,59 @@ async function saveJob(event) {
             throw new Error(data.message || "Could not save job.");
         }
 
-        showJobFormMessage(jobId ? "Job updated successfully." : "Job added successfully.", false);
+        showJobFormMessage(
+            jobId
+                ? "Job updated successfully."
+                : "Job added successfully.",
+            false
+        );
+
         resetJobForm();
+
         await loadJobs();
         await showStats();
+
     } catch (error) {
         showJobFormMessage(error.message, true);
+
     } finally {
-        button.disabled = false;
+        saveButton.disabled = false;
     }
 }
 
+
+// Delete a job
 async function deleteJob(jobId) {
     const job = jobs.find(function (item) {
         return item._id === jobId;
     });
 
-    if (!job || !confirm("Delete the job at " + job.company + " for " + job.role + "?")) {
+    if (!job) {
+        return;
+    }
+
+    const confirmed = confirm(
+        "Delete the job at " +
+        job.company +
+        " for " +
+        job.role +
+        "?"
+    );
+
+    if (!confirmed) {
         return;
     }
 
     try {
         const response = await fetch(
-            API_URL + "/jobs/" + encodeURIComponent(jobId),
-            { method: "DELETE" }
+            API_URL + "/jobs/" + jobId,
+            {
+                method: "DELETE",
+
+                headers: {
+                    Authorization: "Bearer " + getAdminToken()
+                }
+            }
         );
 
         const data = await response.json();
@@ -430,26 +594,36 @@ async function deleteJob(jobId) {
 
         await loadJobs();
         await showStats();
+
         showJobFormMessage("Job deleted successfully.", false);
+
     } catch (error) {
         showJobFormMessage(error.message, true);
     }
 }
 
-// ---------- student management from MongoDB ----------
 
+// ==========================================
+// 5. STUDENT MANAGEMENT
+// ==========================================
+
+// Fetch all students from the backend
 async function loadStudents() {
     try {
-        const response = await fetch(API_URL + "/students");
+        const response = await fetch(API_URL + "/students", {
+            headers: {
+                Authorization: "Bearer " + getAdminToken()
+            }
+        });
 
         if (!response.ok) {
-            throw new Error("Could not fetch students.");
+            throw new Error("Could not load students.");
         }
 
         students = await response.json();
 
         if (!Array.isArray(students)) {
-            throw new Error("Invalid student data received.");
+            throw new Error("Invalid student data.");
         }
 
         showStudents();
@@ -457,72 +631,90 @@ async function loadStudents() {
 
     } catch (error) {
         console.error("Student loading error:", error);
+
         alert("Could not load students: " + error.message);
+
         throw error;
     }
 }
 
+
+// Check whether a student is blocked
 function isBlocked(student) {
     return student.blocked === true;
 }
 
-function showStudents() {
-    const body = document.getElementById("studentsBody");
-    const empty = document.getElementById("studentsEmpty");
 
-    body.replaceChildren();
+// Display all students
+function showStudents() {
+    const tableBody = document.getElementById("studentsBody");
+    const emptyMessage = document.getElementById("studentsEmpty");
+
+    tableBody.replaceChildren();
 
     students.forEach(function (student) {
-        const blocked = isBlocked(student);
         const row = document.createElement("tr");
+        const blocked = isBlocked(student);
 
         if (blocked) {
             row.className = "row-blocked";
         }
 
-        [
+        const values = [
             student.name,
             student.email,
             student.branch,
             student.cgpa
-        ].forEach(function (value) {
+        ];
+
+        values.forEach(function (value) {
             const cell = document.createElement("td");
+
             cell.textContent = value ?? "—";
+
             row.appendChild(cell);
         });
 
+        // Show student account status
         const statusCell = document.createElement("td");
-        const badge = document.createElement("span");
+        const statusBadge = document.createElement("span");
 
-        badge.className = blocked
+        statusBadge.className = blocked
             ? "badge badge-blocked"
             : "badge badge-active";
 
-        badge.textContent = blocked ? "Blocked" : "Active";
-        statusCell.appendChild(badge);
+        statusBadge.textContent = blocked ? "Blocked" : "Active";
+
+        statusCell.appendChild(statusBadge);
         row.appendChild(statusCell);
 
+        // Create block/unblock button
         const actionCell = document.createElement("td");
         actionCell.className = "actions";
 
         const button = document.createElement("button");
+
         button.type = "button";
+
         button.className = blocked
             ? "btn btn-outline btn-small"
             : "btn btn-danger btn-small";
 
         button.textContent = blocked ? "Unblock" : "Block";
         button.dataset.studentId = student._id;
-        button.disabled = !student._id;
 
         actionCell.appendChild(button);
         row.appendChild(actionCell);
-        body.appendChild(row);
+
+        tableBody.appendChild(row);
     });
 
-    empty.style.display = students.length === 0 ? "block" : "none";
+    emptyMessage.style.display =
+        students.length === 0 ? "block" : "none";
 }
 
+
+// Block or unblock a student
 async function toggleBlock(studentId) {
     const student = students.find(function (item) {
         return item._id === studentId;
@@ -532,17 +724,20 @@ async function toggleBlock(studentId) {
         return;
     }
 
+    // Reverse the current blocked status
     const newBlockedStatus = !isBlocked(student);
 
     try {
         const response = await fetch(
-            API_URL + "/students/" +
-            encodeURIComponent(studentId) + "/block",
+            API_URL + "/students/" + studentId + "/block",
             {
                 method: "PUT",
+
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + getAdminToken()
                 },
+
                 body: JSON.stringify({
                     blocked: newBlockedStatus
                 })
@@ -557,11 +752,13 @@ async function toggleBlock(studentId) {
             );
         }
 
-        // Update the frontend only after MongoDB confirms the change.
-        const updatedStudent = data.student;
-
+        // Replace the old student data with the updated data
         students = students.map(function (item) {
-            return item._id === studentId ? updatedStudent : item;
+            if (item._id === studentId) {
+                return data.student;
+            }
+
+            return item;
         });
 
         showStudents();
@@ -571,25 +768,36 @@ async function toggleBlock(studentId) {
     }
 }
 
-// ---------- branch distribution ----------
+
+// ==========================================
+// 6. BRANCH DISTRIBUTION
+// ==========================================
 
 function showBranchTable() {
-    const body = document.getElementById("branchBody");
-    const empty = document.getElementById("branchEmpty");
+    const tableBody = document.getElementById("branchBody");
+    const emptyMessage = document.getElementById("branchEmpty");
 
-    const counts = students.reduce(function (result, student) {
+    // Count students in each branch
+    const branchCounts = {};
+
+    students.forEach(function (student) {
         const branch = student.branch || "Not set";
-        result[branch] = (result[branch] || 0) + 1;
-        return result;
-    }, {});
 
-    const branches = Object.keys(counts).sort();
+        if (branchCounts[branch] === undefined) {
+            branchCounts[branch] = 0;
+        }
 
-    body.replaceChildren();
+        branchCounts[branch]++;
+    });
+
+    const branches = Object.keys(branchCounts).sort();
+
+    tableBody.replaceChildren();
 
     branches.forEach(function (branch) {
-        const count = counts[branch];
-        const share = students.length
+        const count = branchCounts[branch];
+
+        const percentage = students.length > 0
             ? Math.round((count / students.length) * 100)
             : 0;
 
@@ -601,32 +809,38 @@ function showBranchTable() {
         const countCell = document.createElement("td");
         countCell.textContent = count;
 
-        const shareCell = document.createElement("td");
-        shareCell.appendChild(document.createTextNode(share + "%"));
+        const percentageCell = document.createElement("td");
+        percentageCell.textContent = percentage + "%";
 
-        const track = document.createElement("div");
-        track.className = "bar-track";
+        // Create percentage bar
+        const barTrack = document.createElement("div");
+        barTrack.className = "bar-track";
 
-        const fill = document.createElement("span");
-        fill.className = "bar-fill";
-        fill.style.width = share + "%";
+        const barFill = document.createElement("span");
+        barFill.className = "bar-fill";
+        barFill.style.width = percentage + "%";
 
-        track.appendChild(fill);
-        shareCell.appendChild(track);
+        barTrack.appendChild(barFill);
+        percentageCell.appendChild(barTrack);
 
         row.appendChild(branchCell);
         row.appendChild(countCell);
-        row.appendChild(shareCell);
+        row.appendChild(percentageCell);
 
-        body.appendChild(row);
+        tableBody.appendChild(row);
     });
 
-    empty.style.display = students.length === 0 ? "block" : "none";
+    emptyMessage.style.display =
+        branches.length === 0 ? "block" : "none";
 }
 
-// ---------- page start ----------
+
+// ==========================================
+// 7. START DASHBOARD
+// ==========================================
 
 async function initDashboard() {
+    // Check whether the admin is logged in
     const currentAdmin = adminAuthGuard();
 
     if (!currentAdmin) {
@@ -637,26 +851,35 @@ async function initDashboard() {
         await loadStudents();
         await loadJobs();
         await showStats();
+
     } catch (error) {
         console.error("Dashboard initialization failed:", error);
     }
 }
 
+
+// Start the dashboard
 initDashboard();
 
-// One listener for student block/unblock actions.
+
+// ==========================================
+// 8. BUTTON EVENT LISTENERS
+// ==========================================
+
+// Handle student block/unblock buttons
 document.getElementById("studentsBody").addEventListener(
     "click",
     function (event) {
         const button = event.target.closest("button[data-student-id]");
 
-        if (button && button.dataset.studentId) {
+        if (button) {
             toggleBlock(button.dataset.studentId);
         }
     }
 );
 
-// One listener for application status updates.
+
+// Handle application status update buttons
 document.getElementById("applicationsBody").addEventListener(
     "click",
     function (event) {
@@ -664,25 +887,41 @@ document.getElementById("applicationsBody").addEventListener(
             "button[data-application-id]"
         );
 
-        if (button && button.dataset.applicationId) {
+        if (button) {
             updateApplicationStatus(button);
         }
     }
 );
 
 
-// Job management form and actions.
-document.getElementById("jobForm").addEventListener("submit", saveJob);
-document.getElementById("cancelJobEditBtn").addEventListener("click", resetJobForm);
-document.getElementById("jobsBody").addEventListener("click", function (event) {
-    const editButton = event.target.closest("button[data-edit-job-id]");
-    const deleteButton = event.target.closest("button[data-delete-job-id]");
+// Handle job form submission and job buttons
+document.getElementById("jobForm").addEventListener(
+    "submit",
+    saveJob
+);
 
-    if (editButton && editButton.dataset.editJobId) {
-        editJob(editButton.dataset.editJobId);
-    }
+document.getElementById("cancelJobEditBtn").addEventListener(
+    "click",
+    resetJobForm
+);
 
-    if (deleteButton && deleteButton.dataset.deleteJobId) {
-        deleteJob(deleteButton.dataset.deleteJobId);
+document.getElementById("jobsBody").addEventListener(
+    "click",
+    function (event) {
+        const editButton = event.target.closest(
+            "button[data-edit-job-id]"
+        );
+
+        const deleteButton = event.target.closest(
+            "button[data-delete-job-id]"
+        );
+
+        if (editButton) {
+            editJob(editButton.dataset.editJobId);
+        }
+
+        if (deleteButton) {
+            deleteJob(deleteButton.dataset.deleteJobId);
+        }
     }
-});
+);

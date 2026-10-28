@@ -1,4 +1,3 @@
-
 const currentStudent = authGuard();
 
 const API_URL = "http://localhost:5000/api";
@@ -12,7 +11,11 @@ async function loadDashboard() {
         // Fetch jobs and applications from MongoDB API
         const [jobsResponse, applicationsResponse] = await Promise.all([
             fetch(API_URL + "/jobs"),
-            fetch(API_URL + "/applications")
+            fetch(API_URL + "/applications", {
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("studentToken")
+                }
+            })
         ]);
 
         if (!jobsResponse.ok || !applicationsResponse.ok) {
