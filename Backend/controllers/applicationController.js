@@ -1,5 +1,7 @@
+
 const Application = require("../models/Application");
 const Student = require("../models/Student");
+const Job = require("../models/Job");
 
 // ==========================================
 // 1. APPLY FOR A JOB
@@ -35,6 +37,40 @@ const applyForJob = async (req, res) => {
             });
         }
 
+        // Find the job in the database
+        const job = await Job.findById(jobId);
+
+        if (!job) {
+            return res.status(404).json({
+                message: "Job not found."
+            });
+        }
+
+        // Validate branch eligibility
+        const branchEligible =
+            Array.isArray(job.branches) &&
+            job.branches.includes(student.branch);
+
+        if (!branchEligible) {
+            return res.status(403).json({
+                message: "Your branch is not eligible for this job."
+            });
+        }
+
+        // Validate CGPA eligibility
+        const studentCGPA = Number(student.cgpa);
+        const minimumCGPA = Number(job.minCGPA);
+
+        if (
+            !Number.isFinite(studentCGPA) ||
+            !Number.isFinite(minimumCGPA) ||
+            studentCGPA < minimumCGPA
+        ) {
+            return res.status(403).json({
+                message: "Your CGPA does not meet the requirement for this job."
+            });
+        }
+
         // Check whether this student already applied
         const existingApplication = await Application.findOne({
             studentEmail: studentEmail,
@@ -47,10 +83,13 @@ const applyForJob = async (req, res) => {
             });
         }
 
-        // Create the application using the verified student's email
+        // Create the application using trusted database values
+        // Do not trust company or role supplied by the client
         const application = await Application.create({
-            ...req.body,
-            studentEmail: studentEmail
+            studentEmail: studentEmail,
+            jobId: job._id.toString(),
+            company: job.company,
+            role: job.role
         });
 
         return res.status(201).json(application);
@@ -59,6 +98,13 @@ const applyForJob = async (req, res) => {
         if (error.code === 11000) {
             return res.status(409).json({
                 message: "You have already applied for this job."
+            });
+        }
+
+        // Invalid MongoDB ObjectId
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                message: "Invalid job ID."
             });
         }
 
@@ -117,7 +163,12 @@ const getApplications = async (req, res) => {
 
 const updateApplication = async (req, res) => {
     try {
-        const allowedStatuses = ["Applied", "Shortlisted", "Selected", "Rejected"];
+        const allowedStatuses = [
+            "Applied",
+            "Shortlisted",
+            "Selected",
+            "Rejected"
+        ];
 
         // Check whether the status is valid
         if (!allowedStatuses.includes(req.body.status)) {
@@ -159,4 +210,4 @@ const updateApplication = async (req, res) => {
 
 
 // Export controller functions
-module.exports = { applyForJob, getApplications, updateApplication };
+module.exports = { applyForJob, getApplications, updateApplication};
