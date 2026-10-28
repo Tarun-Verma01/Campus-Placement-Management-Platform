@@ -28,5 +28,6 @@ function authGuard() {
 // Log out
 function logout() {
     localStorage.removeItem("currentStudent");
+    localStorage.removeItem("studentToken");
     window.location.href = "../index.html";
 }

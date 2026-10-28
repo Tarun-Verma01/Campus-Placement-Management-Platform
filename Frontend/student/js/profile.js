@@ -1,4 +1,3 @@
-
 const currentStudent = authGuard();
 
 if (currentStudent) {
@@ -94,7 +93,8 @@ if (currentStudent) {
                 {
                     method: "PUT",
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + localStorage.getItem("studentToken")
                     },
                     body: JSON.stringify({
                         name: updatedName,

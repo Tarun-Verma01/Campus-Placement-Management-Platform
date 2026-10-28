@@ -219,7 +219,8 @@ async function applyForJob(job, button) {
         const response = await fetch(API_URL + "/applications", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + localStorage.getItem("studentToken")
             },
             body: JSON.stringify({
                 studentEmail: currentStudent.email,
