@@ -134,7 +134,7 @@ function handleRegister() {
         // Send student data to backend
         try {
             var response = await fetch(
-                "http://localhost:5000/api/students/register",
+                "https://placementhub-api-crl7.onrender.com/api/students/register",
                 {
                     method: "POST",
                     headers: {

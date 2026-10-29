@@ -1,6 +1,5 @@
 // Backend API address
-const API_URL = "http://localhost:5000/api";
-
+const API_URL = "https://placementhub-api-crl7.onrender.com/api";
 // Store data received from MongoDB
 let students = [];
 let jobs = [];

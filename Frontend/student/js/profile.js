@@ -1,7 +1,7 @@
 const currentStudent = authGuard();
 
 if (currentStudent) {
-    const API_URL = "http://localhost:5000/api/students";
+    const API_URL = "https://placementhub-api-crl7.onrender.com/api/students";
 
     const nameElement = document.getElementById("viewName");
     const emailElement = document.getElementById("viewEmail");

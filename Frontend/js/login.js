@@ -13,7 +13,7 @@ loginbtn.addEventListener("click", async function () {
 if (email.toLowerCase() === "admin@hub.com") {
     try {
         const response = await fetch(
-            "http://localhost:5000/api/admin/login",
+            "https://placementhub-api-crl7.onrender.com/api/admin/login",
             {
                 method: "POST",
                 headers: {
@@ -47,7 +47,7 @@ if (email.toLowerCase() === "admin@hub.com") {
     // STUDENT AUTHENTICATION 
     try {
         const response = await fetch(
-            "http://localhost:5000/api/students/login",
+            "https://placementhub-api-crl7.onrender.com/api/students/login",
             {
                 method: "POST",
                 headers: {
