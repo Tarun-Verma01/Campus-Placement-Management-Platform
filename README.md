@@ -120,8 +120,6 @@ Mongoose Models
 MongoDB
 ```
 
-![System Architecture](C:/Users/tarun/Downloads/diagram%20(1).png)
-
 ### Architectural Responsibilities
 
 - **Frontend:** Renders the user interface and sends API requests.
