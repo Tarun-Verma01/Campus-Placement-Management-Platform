@@ -120,7 +120,7 @@ Mongoose Models
 MongoDB
 ```
 
-The authentication middleware is applied where required; public endpoints may bypass it.
+![System Architecture](C:/Users/tarun/Downloads/diagram%20(1).png)
 
 ### Architectural Responsibilities
 
